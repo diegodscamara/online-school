@@ -1,8 +1,10 @@
-import { useAuth } from 'wasp/client/auth';
-import { updateCurrentUser } from 'wasp/client/operations';
 import './Main.css';
+
+import { ReactNode, useEffect, useMemo } from 'react';
+
 import AppNavBar from './components/AppNavBar';
-import { useMemo, useEffect, ReactNode } from 'react';
+import { updateCurrentUser } from 'wasp/client/operations';
+import { useAuth } from 'wasp/client/auth';
 import { useLocation } from 'react-router-dom';
 
 /**

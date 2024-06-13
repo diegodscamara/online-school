@@ -15,6 +15,10 @@ const Dashboard = ({ user }: { user: User }) => {
     history.push('/');
   }
 
+  if (!(user.subscriptionStatus === 'active')) {
+    history.push('/pricing');
+  }
+
   const { data: stats, isLoading, error } = useQuery(getDailyStats);
 
   return (

@@ -95,9 +95,23 @@ entity User {=psl
 
   email                     String?         @unique
   username                  String?         @unique
+  about                     String?         // New field
   lastActiveTimestamp       DateTime        @default(now())
   isAdmin                   Boolean         @default(false)
+  isOnboarded               Boolean         @default(false)
+  role                      String?         @default("student")
 
+  fullName                  String?        
+  nativeLanguage            String?         
+  portugueseLevel           String?         
+  location                  String?         
+  learningPurpose           String?         
+  specificGoals             String?         
+  preferredLearningStyle    String?         
+  interests                 String?         
+  topicsOfInterest          String?         
+  specialRequirements       String?         
+ 
   stripeId                  String?
   checkoutSessionId         String?
   subscriptionTier          String?
@@ -233,6 +247,12 @@ page EmailVerificationPage {
   component: import { EmailVerification } from "@src/client/auth/EmailVerification",
 }
 //#endregion
+
+route OnboardingRoute { path: "/onboarding", to: OnboardingPage }
+page OnboardingPage {
+  authRequired: true,
+  component: import OnboardingPage from "@src/client/app/OnboardingPage"
+}
 
 route DemoAppRoute { path: "/demo-app", to: DemoAppPage }
 page DemoAppPage {
@@ -371,7 +391,6 @@ action createFile {
   fn: import { createFile } from "@src/server/actions.js",
   entities: [User, File]
 }
-
 
 // 📚 Queries
 

@@ -90,7 +90,7 @@ test('AI schedule generation fails on 4th attempt', async () => {
 });
 
 test('Make test payment with Stripe', async () => {
-  const PLAN_NAME = 'Hobby';
+  const PLAN_NAME = 'Basic';
   await makeStripePayment({ test, page, planName: PLAN_NAME });
 });
 

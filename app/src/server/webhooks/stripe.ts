@@ -42,29 +42,35 @@ export const stripeWebhook: StripeWebhook = async (request, response, context) =
        * make sure to configure them in the Stripe dashboard first!
        * see: https://docs.opensaas.sh/guides/stripe-integration/
        */
-      if (line_items?.data[0]?.price?.id === process.env.HOBBY_SUBSCRIPTION_PRICE_ID) {
+      if (line_items?.data[0]?.price?.id === process.env.BASIC_PRICE_ID) {
         console.log('Hobby subscription purchased');
         await context.entities.User.updateMany({
           where: {
             stripeId: userStripeId,
           },
           data: {
+            credits: {
+              increment: 4,
+            },
             datePaid: new Date(),
-            subscriptionTier: TierIds.HOBBY,
+            subscriptionTier: TierIds.BASIC,
           },
         });
-      } else if (line_items?.data[0]?.price?.id === process.env.PRO_SUBSCRIPTION_PRICE_ID) {
+      } else if (line_items?.data[0]?.price?.id === process.env.STANDARD_PRICE_ID) {
         console.log('Pro subscription purchased');
         await context.entities.User.updateMany({
           where: {
             stripeId: userStripeId,
           },
           data: {
+            credits: {
+              increment: 8,
+            },
             datePaid: new Date(),
-            subscriptionTier: TierIds.PRO,
+            subscriptionTier: TierIds.STANDARD,
           },
         });
-      } else if (line_items?.data[0]?.price?.id === process.env.CREDITS_PRICE_ID) {
+      } else if (line_items?.data[0]?.price?.id === process.env.PREMIUM_PRICE_ID) {
         console.log('Credits purchased');
         await context.entities.User.updateMany({
           where: {
@@ -72,9 +78,10 @@ export const stripeWebhook: StripeWebhook = async (request, response, context) =
           },
           data: {
             credits: {
-              increment: 10,
+              increment: 12,
             },
             datePaid: new Date(),
+            subscriptionTier: TierIds.PREMIUM,
           },
         });
       } else {

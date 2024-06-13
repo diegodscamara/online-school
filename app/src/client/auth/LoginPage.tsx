@@ -1,19 +1,26 @@
-import { useAuth, LoginForm } from 'wasp/client/auth';
-import { useHistory } from 'react-router-dom';
-import { useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { LoginForm, useAuth } from 'wasp/client/auth';
+import { useHistory, useLocation } from 'react-router-dom';
+
 import { AuthWrapper } from './authWrapper';
+import { Link } from 'react-router-dom';
+import { useEffect } from 'react';
+
+interface LocationState {
+  from?: string;
+}
 
 export default function Login() {
   const history = useHistory();
-
+  const location = useLocation<LocationState>();
   const { data: user } = useAuth();
 
   useEffect(() => {
     if (user) {
-      history.push('/');
+      const redirectTo = localStorage.getItem('redirectAfterLogin') || '/demo-app';
+      localStorage.removeItem('redirectAfterLogin');
+      history.push(redirectTo);
     }
-  }, [user, history]);
+  }, [user, history, location]);
 
   return (
     <AuthWrapper>

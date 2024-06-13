@@ -10,7 +10,7 @@ export default function CheckoutPage() {
   useEffect(() => {
     function delayedRedirect() {
       return setTimeout(() => {
-        history.push('/account');
+        history.push('/onboarding');
       }, 4000);
     }
 
