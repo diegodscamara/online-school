@@ -114,13 +114,10 @@ const OnboardingPage = () => {
     setFormData({ ...formData, [key]: value });
   };
 
-  const validateStep = () => {
+  const validateStep = (stepIndex: number) => {
     try {
-      stepSchemas[step].parse(formData);
+      stepSchemas[stepIndex].parse(formData);
       setErrors({});
-      const newCompletedSteps = [...completedSteps];
-      newCompletedSteps[step] = true;
-      setCompletedSteps(newCompletedSteps);
       return true;
     } catch (e) {
       if (e instanceof z.ZodError) {
@@ -128,7 +125,7 @@ const OnboardingPage = () => {
         e.errors.forEach((error) => {
           if (error.path.length > 0) {
             const fieldKey = error.path[0] as string;
-            const question = steps[step].questions.find((q) => q.key === fieldKey);
+            const question = steps[stepIndex].questions.find((q) => q.key === fieldKey);
             if (question) {
               fieldErrors[fieldKey] = `${question.label} is required`;
             }
@@ -141,29 +138,33 @@ const OnboardingPage = () => {
   };
 
   const handleNext = () => {
-    if (validateStep()) {
-      if (step < steps.length - 1) {
-        setStep(step + 1);
-      } else {
-        handleSubmit();
-      }
+    if (validateStep(step)) {
+      const newCompletedSteps = [...completedSteps];
+      newCompletedSteps[step] = true;
+      setCompletedSteps(newCompletedSteps);
+      setStep(step + 1);
     }
   };
 
   const handleBack = () => {
     if (step > 0) {
       setStep(step - 1);
+      const newCompletedSteps = [...completedSteps];
+      newCompletedSteps[step - 1] = false;
+      setCompletedSteps(newCompletedSteps);
     }
   };
 
   const handleStepClick = (index: number) => {
-    if (index < step || (index > step && completedSteps[index - 1])) {
+    if (index <= step) {
       setStep(index);
     }
   };
 
   const handleSubmit = async () => {
-    if (validateStep()) {
+    const allStepsValid = steps.every((_, index) => validateStep(index));
+
+    if (allStepsValid) {
       try {
         await updateCurrentUser(formData);
         alert('Onboarding completed successfully!');
@@ -172,31 +173,25 @@ const OnboardingPage = () => {
         console.error(error);
         alert('Failed to complete onboarding.');
       }
+    } else {
+      alert('Please fill out all required fields.');
     }
   };
 
   return (
     <div className='mt-10 px-6 h-full py-20'>
       <div className='overflow-hidden border border-gray-900/10 shadow-lg sm:rounded-lg lg:m-8 dark:border-gray-100/10'>
-        <div className='flex justify-between items-center px-4 py-5 sm:px-6 lg:px-8'>
+        <div className='flex items-center px-4 py-5 sm:px-6 lg:px-8'>
           {steps.map((s, index) => (
             <React.Fragment key={index}>
-              <div
-                onClick={() => handleStepClick(index)}
-                className={`flex items-center cursor-pointer ${
-                  completedSteps[index]
-                    ? 'text-indigo-600'
-                    : index === step
-                      ? 'text-gray-900 dark:text-white border border-indigo-600'
-                      : 'text-gray-400 dark:text-gray-500'
-                }`}
-              >
+              <div className='flex items-center flex-col'>
                 <div
-                  className={`flex items-center justify-center w-10 h-10 rounded-full ${
-                    completedSteps[index]
-                      ? 'bg-indigo-600 text-white'
-                      : index === step
-                        ? 'border border-indigo-600 text-indigo-600'
+                  onClick={() => handleStepClick(index)}
+                  className={`flex items-center justify-center w-10 h-10 rounded-full cursor-pointer ${
+                    index === step
+                      ? 'border border-indigo-600 text-indigo-600'
+                      : completedSteps[index]
+                        ? 'bg-indigo-600 text-white'
                         : 'bg-gray-200 text-gray-600'
                   }`}
                 >
@@ -208,20 +203,18 @@ const OnboardingPage = () => {
                     s.icon
                   )}
                 </div>
-                <span className='ml-2'>{s.title}</span>
+                <span className={`ml-2 ${index === step ? 'text-indigo-600' : 'text-gray-500'}`}>{s.title}</span>
               </div>
               {index < steps.length - 1 && (
                 <div
                   className={`flex-grow h-1 ${
                     completedSteps[index] ? 'bg-indigo-600' : 'bg-gray-300 dark:bg-gray-700'
                   }`}
+                  style={{ marginLeft: '-2.5rem', marginRight: '-2.5rem' }}
                 ></div>
               )}
             </React.Fragment>
           ))}
-        </div>
-        <div className='px-4 py-5 sm:px-6 lg:px-8'>
-          <h3 className='text-base font-semibold leading-6 text-gray-900 dark:text-white'>{steps[step].title}</h3>
         </div>
         <div className='border-t border-gray-900/10 dark:border-gray-100/10 px-4 py-5 sm:p-0'>
           <dl className='sm:divide-y sm:divide-gray-900/10 sm:dark:divide-gray-100/10'>
@@ -238,7 +231,11 @@ const OnboardingPage = () => {
                       value={formData[question.key] || ''}
                       onChange={(e) => handleChange(question.key, e.target.value)}
                       placeholder={question.placeholder}
-                      className='w-full pl-10 rounded-md border-gray-300 shadow-sm dark:bg-gray-800 dark:border-gray-600 dark:text-white'
+                      className={`w-full pl-10 rounded-md border ${
+                        errors[question.key]
+                          ? 'border-red-500'
+                          : 'border-gray-300 shadow-sm dark:bg-gray-800 dark:border-gray-600 dark:text-white'
+                      }`}
                     />
                   </div>
                   {errors[question.key] && <p className='text-red-500 text-xs mt-1'>{errors[question.key]}</p>}
@@ -256,7 +253,7 @@ const OnboardingPage = () => {
             Back
           </button>
           <button
-            onClick={handleNext}
+            onClick={step < steps.length - 1 ? handleNext : handleSubmit}
             className='inline-flex justify-center py-2 px-4 border border-transparent shadow-md text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500'
           >
             {step < steps.length - 1 ? 'Next' : 'Finish'}

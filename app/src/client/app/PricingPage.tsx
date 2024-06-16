@@ -1,36 +1,41 @@
-import { AiFillCheckCircle } from 'react-icons/ai';
+import { CheckIcon } from '@heroicons/react/20/solid';
 import { TierIds } from '../../shared/constants';
-import { cn } from '../../shared/utils';
 import { stripePayment } from 'wasp/client/operations';
 import { useAuth } from 'wasp/client/auth';
 import { useHistory } from 'react-router-dom';
 import { useState } from 'react';
 import { z } from 'zod';
 
-export const tiers = [
+const tiers = [
   {
     name: 'Basic Plan',
     id: TierIds.BASIC,
-    price: '$200',
+    priceMonthly: '$200',
     description: 'Perfect for beginners...',
     features: ['1 class per week', 'Total 4 classes per month'],
+    mostPopular: false,
   },
   {
     name: 'Standard Plan',
     id: TierIds.STANDARD,
-    price: '$400',
+    priceMonthly: '$400',
     description: 'Ideal for steady progress...',
     features: ['2 classes per week', 'Total 8 classes per month'],
-    bestDeal: true,
+    mostPopular: true,
   },
   {
     name: 'Premium Plan',
     id: TierIds.PREMIUM,
-    price: '$600',
+    priceMonthly: '$600',
     description: 'Designed for dedicated learners...',
     features: ['3 classes per week', 'Total 12 classes per month'],
+    mostPopular: false,
   },
 ];
+
+function classNames(...classes: string[]) {
+  return classes.filter(Boolean).join(' ');
+}
 
 const PricingPage = () => {
   const [isStripePaymentLoading, setIsStripePaymentLoading] = useState<boolean | string>(false);
@@ -69,57 +74,56 @@ const PricingPage = () => {
       console.error(err);
     }
   };
-
   return (
-    <div className='py-10 lg:mt-10'>
+    <div className='bg-white dark:bg-boxdark-2 py-24 sm:py-32'>
       <div className='mx-auto max-w-7xl px-6 lg:px-8'>
-        <div id='pricing' className='mx-auto max-w-4xl text-center'>
-          <h2 className='mt-2 text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl dark:text-white'>
-            Pick your <span className='text-yellow-500'>pricing</span>
-          </h2>
+        <div className='mx-auto max-w-4xl text-center'>
+          <h2 className='text-base font-semibold leading-7 text-yellow-500'>Pricing</h2>
+          <p className='mt-2 text-4xl font-bold tracking-tight text-gray-900 dark:text-gray-50 sm:text-5xl'>
+            Pricing plans for teams of&nbsp;all&nbsp;sizes
+          </p>
         </div>
-        <p className='mx-auto mt-6 max-w-2xl text-center text-lg leading-8 text-gray-600 dark:text-white'>
-          Stripe subscriptions and secure webhooks are built-in. Just add your Stripe Product IDs! Try it out below with
-          test credit card number{' '}
-          <span className='px-2 py-1 bg-gray-100 rounded-md text-gray-500'>4242 4242 4242 4242 4242</span>
+        <p className='mx-auto mt-6 max-w-2xl text-center text-lg leading-8 text-gray-600 dark:text-gray-400'>
+          Distinctio et nulla eum soluta et neque labore quibusdam. Saepe et quasi iusto modi velit ut non voluptas in.
+          Explicabo id ut laborum.
         </p>
-        <div className='isolate mx-auto mt-16 grid max-w-md grid-cols-1 gap-y-8 lg:gap-x-8 sm:mt-20 lg:mx-0 lg:max-w-none lg:grid-cols-3'>
-          {tiers.map((tier) => (
+        <div className='isolate mx-auto mt-16 grid max-w-md grid-cols-1 gap-y-8 sm:mt-20 lg:mx-0 lg:max-w-none lg:grid-cols-3'>
+          {tiers.map((tier, tierIdx) => (
             <div
               key={tier.id}
-              className={cn(
-                'relative flex flex-col grow justify-between rounded-3xl ring-gray-900/10 dark:ring-gray-100/10 overflow-hidden p-8 xl:p-10',
-                {
-                  'ring-2': tier.bestDeal,
-                  'ring-1 lg:mt-8': !tier.bestDeal,
-                }
+              className={classNames(
+                tier.mostPopular ? 'lg:z-10 lg:rounded-b-none' : 'lg:mt-8',
+                tierIdx === 0 ? 'lg:rounded-r-none' : '',
+                tierIdx === tiers.length - 1 ? 'lg:rounded-l-none' : '',
+                'flex flex-col justify-between rounded-3xl bg-white p-8 ring-1 ring-gray-200 xl:p-10'
               )}
             >
-              {tier.bestDeal && (
-                <div className='absolute top-0 right-0 -z-10 w-full h-full transform-gpu blur-3xl' aria-hidden='true'>
-                  <div
-                    className='absolute w-full h-full bg-gradient-to-br from-amber-400 to-purple-300 opacity-30 dark:opacity-50'
-                    style={{
-                      clipPath: 'circle(670% at 50% 50%)',
-                    }}
-                  />
-                </div>
-              )}
-              <div className='mb-8'>
+              <div>
                 <div className='flex items-center justify-between gap-x-4'>
-                  <h3 id={tier.id} className='text-gray-900 text-lg font-semibold leading-8 dark:text-white'>
+                  <h3
+                    id={tier.id}
+                    className={classNames(
+                      tier.mostPopular ? 'text-indigo-600' : 'text-gray-900',
+                      'text-lg font-semibold leading-8'
+                    )}
+                  >
                     {tier.name}
                   </h3>
+                  {tier.mostPopular && (
+                    <p className='rounded-full bg-indigo-600/10 px-2.5 py-1 text-xs font-semibold leading-5 text-indigo-600'>
+                      Most popular
+                    </p>
+                  )}
                 </div>
-                <p className='mt-4 text-sm leading-6 text-gray-600 dark:text-white'>{tier.description}</p>
-                <p className='mt-6 flex items-baseline gap-x-1 dark:text-white'>
-                  <span className='text-4xl font-bold tracking-tight text-gray-900 dark:text-white'>{tier.price}</span>
-                  <span className='text-sm font-semibold leading-6 text-gray-600 dark:text-white'>/month</span>
+                <p className='mt-4 text-sm leading-6 text-gray-600'>{tier.description}</p>
+                <p className='mt-6 flex items-baseline gap-x-1'>
+                  <span className='text-4xl font-bold tracking-tight text-gray-900'>{tier.priceMonthly}</span>
+                  <span className='text-sm font-semibold leading-6 text-gray-600'>/month</span>
                 </p>
-                <ul role='list' className='mt-8 space-y-3 text-sm leading-6 text-gray-600 dark:text-white'>
+                <ul role='list' className='mt-8 space-y-3 text-sm leading-6 text-gray-600'>
                   {tier.features.map((feature) => (
                     <li key={feature} className='flex gap-x-3'>
-                      <AiFillCheckCircle className='h-6 w-5 flex-none text-yellow-500' aria-hidden='true' />
+                      <CheckIcon className='h-6 w-5 flex-none text-indigo-600' aria-hidden='true' />
                       {feature}
                     </li>
                   ))}
@@ -129,12 +133,11 @@ const PricingPage = () => {
                 <button
                   onClick={handleCustomerPortalClick}
                   aria-describedby='manage-subscription'
-                  className={cn(
-                    'mt-8 block rounded-md py-2 px-3 text-center text-sm font-semibold leading-6 focus-visible:outline focus-visible:outline-2 focus-visible:outline-yellow-400',
-                    {
-                      'bg-yellow-500 text-white hover:text-white shadow-sm hover:bg-yellow-400': tier.bestDeal,
-                      'text-gray-600 ring-1 ring-inset ring-purple-200 hover:ring-purple-400': !tier.bestDeal,
-                    }
+                  className={classNames(
+                    'mt-8 block rounded-md py-2 px-3 text-center text-sm font-semibold leading-6 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600',
+                    tier.mostPopular
+                      ? 'bg-indigo-600 text-white shadow-sm hover:bg-indigo-500'
+                      : 'text-indigo-600 ring-1 ring-inset ring-indigo-200 hover:ring-indigo-300'
                   )}
                 >
                   Manage Subscription
@@ -143,15 +146,12 @@ const PricingPage = () => {
                 <button
                   onClick={() => handleBuyNowClick(tier.id)}
                   aria-describedby={tier.id}
-                  className={cn(
-                    {
-                      'bg-yellow-500 text-white hover:text-white shadow-sm hover:bg-yellow-400': tier.bestDeal,
-                      'text-gray-600  ring-1 ring-inset ring-purple-200 hover:ring-purple-400': !tier.bestDeal,
-                    },
-                    {
-                      'opacity-50 cursor-not-allowed': isStripePaymentLoading === tier.id,
-                    },
-                    'mt-8 block rounded-md py-2 px-3 text-center text-sm dark:text-white font-semibold leading-6 focus-visible:outline focus-visible:outline-2 focus-visible:outline-yellow-400'
+                  className={classNames(
+                    'mt-8 block rounded-md py-2 px-3 text-center text-sm font-semibold leading-6 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600',
+                    tier.mostPopular
+                      ? 'bg-indigo-600 text-white shadow-sm hover:bg-indigo-500'
+                      : 'text-indigo-600 ring-1 ring-inset ring-indigo-200 hover:ring-indigo-300',
+                    isStripePaymentLoading && isStripePaymentLoading === tier.id ? 'opacity-50 cursor-not-allowed' : ''
                   )}
                 >
                   {!!user ? 'Buy plan' : 'Log in to buy plan'}

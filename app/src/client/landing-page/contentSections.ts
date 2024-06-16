@@ -1,14 +1,16 @@
-import { DOCS_URL, BLOG_URL } from '../../shared/constants';
-import daBoiAvatar from '../static/da-boi.png';
+import { BLOG_URL, DOCS_URL } from '../../shared/constants';
+
 import avatarPlaceholder from '../static/avatar-placeholder.png';
+import daBoiAvatar from '../static/da-boi.png';
 import { routes } from 'wasp/client/router';
 
 export const navigation = [
-  { name: 'Features', href: '#features' },
+  { name: 'AI Scheduler (Demo App)', href: routes.DemoAppRoute.build() },
+  { name: 'File Upload (AWS S3)', href: routes.FileUploadRoute.build() },
   { name: 'Pricing', href: routes.PricingPageRoute.build() },
-  { name: 'Documentation', href: DOCS_URL },
   { name: 'Blog', href: BLOG_URL },
 ];
+
 export const features = [
   {
     name: 'Cool Feature #1',

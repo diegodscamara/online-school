@@ -119,6 +119,7 @@ entity User {=psl
   sendEmail                 Boolean         @default(false)
   datePaid                  DateTime?
   credits                   Int             @default(3)
+  avatarUrl                 String?
 
   gptResponses              GptResponse[]
   contactFormMessages       ContactFormMessage[]
@@ -269,6 +270,12 @@ route AccountRoute { path: "/account", to: AccountPage }
 page AccountPage {
   authRequired: true,
   component: import Account from "@src/client/app/AccountPage"
+}
+
+route LearningProfileRoute { path: "/learning-profile", to: LearningProfilePage }
+page LearningProfilePage {
+  authRequired: true,
+  component: import Account from "@src/client/app/LearningProfilePage"
 }
 
 route CheckoutRoute { path: "/checkout", to: CheckoutPage }

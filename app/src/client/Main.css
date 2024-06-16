@@ -154,3 +154,7 @@ span.flatpickr-weekday,
 [x-cloak] {
   display: none !important;
 }
+
+html {
+  font-family: 'Inter', 'sans-serif';
+}

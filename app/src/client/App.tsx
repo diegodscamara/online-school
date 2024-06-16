@@ -3,6 +3,7 @@ import './Main.css';
 import { ReactNode, useEffect, useMemo } from 'react';
 
 import AppNavBar from './components/AppNavBar';
+import { NotificationProvider } from './hooks/useNotification';
 import { updateCurrentUser } from 'wasp/client/operations';
 import { useAuth } from 'wasp/client/auth';
 import { useLocation } from 'react-router-dom';
@@ -44,17 +45,17 @@ export default function App({ children }: { children: ReactNode }) {
   }, [location]);
 
   return (
-    <>
+    <NotificationProvider>
       <div className='min-h-screen dark:text-white dark:bg-boxdark-2'>
         {isAdminDashboard ? (
           <>{children}</>
         ) : (
           <>
             {shouldDisplayAppNavBar && <AppNavBar />}
-            <div className='mx-auto max-w-7xl sm:px-6 lg:px-8'>{children}</div>
+            {children}
           </>
         )}
       </div>
-    </>
+    </NotificationProvider>
   );
 }

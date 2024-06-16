@@ -1,5 +1,6 @@
-import { ApexOptions } from 'apexcharts';
 import React, { useState } from 'react';
+
+import { ApexOptions } from 'apexcharts';
 import ReactApexChart from 'react-apexcharts';
 
 interface BarChartState {
@@ -22,7 +23,7 @@ const BarChart: React.FC = () => {
   const options: ApexOptions = {
     colors: ['#3C50E0'],
     chart: {
-      fontFamily: 'Satoshi, sans-serif',
+      fontFamily: 'Inter, sans-serif',
       type: 'bar',
       height: 350,
       toolbar: {
